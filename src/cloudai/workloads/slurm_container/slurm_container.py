@@ -16,7 +16,9 @@
 
 from typing import Optional
 
-from cloudai import CmdArgs, DockerImage, Installable, TestDefinition
+from pydantic import Field
+
+from cloudai import CmdArgs, DockerImage, File, Installable, TestDefinition
 
 
 class SlurmContainerCmdArgs(CmdArgs):
@@ -30,7 +32,7 @@ class SlurmContainerTestDefinition(TestDefinition):
     """Test definition for a generic Slurm container test."""
 
     cmd_args: SlurmContainerCmdArgs
-
+    scripts: list[File] = Field(default_factory=list)
     _docker_image: Optional[DockerImage] = None
 
     @property
@@ -41,7 +43,7 @@ class SlurmContainerTestDefinition(TestDefinition):
 
     @property
     def installables(self) -> list[Installable]:
-        return [self.docker_image, *self.git_repos]
+        return [self.docker_image, *self.git_repos, *self.scripts]
 
     @property
     def extra_args_str(self) -> str:
